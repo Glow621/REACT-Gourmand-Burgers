@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gourmand Burgers</title>
+
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- Leaflet (mapa) -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+  </head>
+
+  <body>
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="container topbar__inner">
+        <a class="brand" href="#home" aria-label="Ir a inicio">
+          <span class="brand__logo">🍔</span>
+          <span class="brand__name">Gourmand Burgers</span>
+        </a>
+
+        <nav class="nav" aria-label="Navegación principal">
+          <a href="#home">Home</a>
+          <a href="#menu">Menú</a>
+          <a href="#stores">Locales</a>
+          <a href="#about">Nosotros</a>
+          <a href="#contact">Contacto</a>
+        </nav>
+
+        <div class="actions">
+          <button
+            class="icon-btn"
+            id="themeBtn"
+            title="Cambiar tema"
+            aria-label="Cambiar tema"
+          >
+            🌙
+          </button>
+          <button
+            class="icon-btn"
+            id="openCartBtn"
+            title="Abrir carrito"
+            aria-label="Abrir carrito"
+          >
+            🛒 <span class="badge" id="cartCount">0</span>
+          </button>
+        </div>
+
+        <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú">
+          ☰
+        </button>
+      </div>
+
+      <div class="mobile-nav" id="mobileNav" aria-label="Navegación móvil">
+        <a href="#home">Home</a>
+        <a href="#menu">Menú</a>
+        <a href="#stores">Locales</a>
+        <a href="#about">Nosotros</a>
+        <a href="#contact">Contacto</a>
+      </div>
+    </header>
+
+    <!-- Selected store bar -->
+    <section class="storebar" id="storeBar" aria-live="polite">
+      <div class="container storebar__inner">
+        <div class="storebar__left">
+          <span class="tag">📍 Sucursal</span>
+          <strong id="selectedStoreName">No seleccionada</strong>
+          <span class="muted tiny" id="selectedStoreHint"
+            >Elegí una sucursal en el mapa.</span
+          >
+        </div>
+        <div class="storebar__right">
+          <button class="btn" id="goStoresBtn">Ver locales</button>
+          <button class="btn" id="clearStoreBtn">Quitar</button>
+        </div>
+      </div>
+    </section>
+
+    <main id="home">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="container hero__grid">
+          <div class="hero__copy">
+            <p class="pill">
+              🔥 Promo cooked · Cupón: <strong>GOURMAND10</strong> (10% OFF)
+            </p>
+            <h1>
+              Hamburguesas artesanales, donde la carne manda, y el sabor explota.
+            </h1>
+            <p class="muted">
+              Proyecto construido en HTML/CSS/JS: menú, favoritos, carrito
+              persistente, cupones, delivery/pickup y sucursales.
+            </p>
+
+            <div class="hero__cta">
+              <a class="btn primary" href="#menu">Ver menú</a>
+              <button class="btn" id="surpriseBtn">Sorpréndeme 🎲</button>
+              <button class="btn" id="openFeaturedBtn">
+                Ver destacados ⭐
+              </button>
+            </div>
+
+            <div class="hero__stats">
+              <div class="stat">
+                <div class="stat__num">15–20 min</div>
+                <div class="stat__label">Entrega promedio</div>
+              </div>
+              <div class="stat">
+                <div class="stat__num">★ 4.8</div>
+                <div class="stat__label">Valoración</div>
+              </div>
+              <div class="stat">
+                <div class="stat__num">Delivery</div>
+                <div class="stat__label">Primera compra gratis!</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero__media">
+            <div class="carousel" aria-label="Carrusel de destacados">
+              <div class="carousel__track" id="carouselTrack"></div>
+
+              <button
+                class="carousel__btn left"
+                id="prevSlide"
+                aria-label="Anterior"
+              >
+                ‹
+              </button>
+              <button
+                class="carousel__btn right"
+                id="nextSlide"
+                aria-label="Siguiente"
+              >
+                ›
+              </button>
+
+              <div
+                class="carousel__dots"
+                id="carouselDots"
+                aria-label="Indicadores"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Menu -->
+      <section id="menu" class="menu">
+        <div class="container">
+          <div class="section-head">
+            <h2>Gourmand’s Menu</h2>
+            <p class="muted">
+              Buscá, filtrá, elegí extras y agregá al carrito.
+            </p>
+          </div>
+
+          <div class="controls">
+            <div class="search">
+              <span>🔎</span>
+              <input
+                id="searchInput"
+                type="search"
+                placeholder="Buscar: bacon, veggie, combo..."
+              />
+            </div>
+
+            <div class="chips" id="categoryChips" aria-label="Categorías"></div>
+
+            <div class="sort">
+              <label class="muted" for="sortSelect">Orden:</label>
+              <select id="sortSelect">
+                <option value="featured">Destacados</option>
+                <option value="priceAsc">Precio: menor a mayor</option>
+                <option value="priceDesc">Precio: mayor a menor</option>
+                <option value="ratingDesc">Rating: mejor</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid" id="menuGrid" aria-label="Lista de productos"></div>
+        </div>
+      </section>
+
+      <!-- Stores / Map -->
+      <section id="stores" class="stores">
+        <div class="container">
+          <div class="section-head">
+            <h2>Locales</h2>
+            <p class="muted">Ubicaciones locales.</p>
+          </div>
+
+          <div class="stores__grid">
+            <div class="card soft">
+              <h3>Elegí tu sucursal</h3>
+              <p class="muted" style="margin-top: 3px">
+                Click en un marcador para ver detalles.
+              </p>
+
+              <div class="row" style="margin-top: 6px">
+                <button class="btn" id="locateBtn">📍 Mi ubicación</button>
+                <button class="btn" id="resetMapBtn">↺ Reset</button>
+              </div>
+
+              <div class="divider"></div>
+
+              <h4 style="margin: 0 0 8px">Sucursales</h4>
+              <div
+                class="storelist"
+                id="storeList"
+                aria-label="Lista de locales"
+              ></div>
+
+              <p class="tiny muted" style="margin-top: 10px">
+                * “Mi ubicación” usa geolocalización del navegador (si das
+                permiso).
+              </p>
+            </div>
+
+            <div class="map-wrap card">
+              <div id="map" class="map" aria-label="Mapa de locales"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section id="about" class="info">
+        <div class="container info__grid">
+          <div class="card soft">
+            <h3>Experiencia de compra</h3>
+            <p class="muted">
+              Extras por producto, favoritos persistentes, carrito lateral,
+              cupones y métodos de entrega.
+            </p>
+            <ul class="list">
+              <li>Modal de producto</li>
+              <li>Cupón + propina</li>
+              <li>Sucursal seleccionable</li>
+            </ul>
+          </div>
+          <div class="card soft">
+            <h3>Fácil de extender</h3>
+            <p class="muted">
+              Futura implementacion backend con checkout real, pasarela de pago, panel admin,
+              inventario, login, etc.
+            </p>
+            <div class="row">
+              <span class="tag">Leaflet</span>
+              <span class="tag">Drawer</span>
+              <span class="tag">Toasts</span>
+              <span class="tag">Cupones</span>
+              <span class="tag">Favoritos</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <section id="contact" class="footer">
+        <div class="container footer__grid">
+          <div>
+            <div class="brand brand--footer">
+              <span class="brand__logo">🍔</span>
+              <span class="brand__name">Gourmand Burgers</span>
+            </div>
+            <p class="muted-brand">
+              Construida en HTML/CSS/JS by Mati Biondi.
+            </p>
+          </div>
+          <div class="footer__cols">
+            <div>
+              <h4>Horarios</h4>
+              <p class="muted">Lun–Dom · 12:00–23:00</p>
+            </div>
+            <div>
+              <h4>Dirección</h4>
+              <p class="muted">Av. Ejemplo 123</p>
+            </div>
+            <div>
+              <h4>Soporte</h4>
+              <p class="muted">burgers@gourmand.com</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Floating cart button (mobile) -->
+    <button class="fab" id="fabCart" aria-label="Abrir carrito">
+      🛒 <span class="badge" id="cartCountFab">0</span>
+    </button>
+
+    <!-- Cart Drawer -->
+    <aside class="drawer" id="cartDrawer" aria-label="Carrito">
+      <div class="drawer__overlay" id="drawerOverlay"></div>
+      <div
+        class="drawer__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Panel del carrito"
+      >
+        <div class="drawer__head">
+          <h3>Tu carrito</h3>
+          <button
+            class="icon-btn"
+            id="closeCartBtn"
+            aria-label="Cerrar carrito"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="drawer__body" id="cartItems"></div>
+
+        <div class="drawer__foot">
+          <div class="box">
+            <div class="row between">
+              <span class="muted">Método</span>
+              <div
+                class="segmented"
+                role="tablist"
+                aria-label="Método de entrega"
+              >
+                <button class="seg active" id="segDelivery" type="button">
+                  Delivery
+                </button>
+                <button class="seg" id="segPickup" type="button">Pickup</button>
+              </div>
+            </div>
+
+            <div class="row between" style="margin-top: 10px">
+              <span class="muted">Propina</span>
+              <div class="segmented" role="tablist" aria-label="Propina">
+                <button class="seg active" data-tip="0" type="button">
+                  0%
+                </button>
+                <button class="seg" data-tip="5" type="button">5%</button>
+                <button class="seg" data-tip="10" type="button">10%</button>
+              </div>
+            </div>
+
+            <div class="row" style="margin-top: 10px">
+              <div class="coupon">
+                <input
+                  id="couponInput"
+                  type="text"
+                  placeholder="Cupón (GOURMAND10 / ENVIOFREE)"
+                />
+                <button class="btn" id="applyCouponBtn" type="button">
+                  Aplicar
+                </button>
+              </div>
+            </div>
+
+            <div
+              class="tiny muted"
+              id="couponMsg"
+              style="margin-top: 8px"
+            ></div>
+          </div>
+
+          <div class="totals">
+            <div class="row between">
+              <span class="muted">Subtotal</span>
+              <strong id="subtotal">$0.00</strong>
+            </div>
+            <div class="row between">
+              <span class="muted">Descuento</span>
+              <span id="discount">$0.00</span>
+            </div>
+            <div class="row between">
+              <span class="muted">Envío</span>
+              <span id="shipping">$0.00</span>
+            </div>
+            <div class="row between">
+              <span class="muted">Propina</span>
+              <span id="tip">$0.00</span>
+            </div>
+            <div class="row between total">
+              <span>Total</span>
+              <strong id="total">$0.00</strong>
+            </div>
+          </div>
+
+          <div class="drawer__actions">
+            <button class="btn" id="clearCartBtn" type="button">Vaciar</button>
+            <button class="btn primary" id="checkoutBtn" type="button">
+              Pagar
+            </button>
+          </div>
+
+          <p class="tiny muted">
+            * Checkout: muestra un resumen, guarda “último pedido” y limpia
+            el carrito.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal" aria-hidden="true">
+      <div class="modal__overlay" id="modalOverlay"></div>
+      <div
+        class="modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Detalle de producto"
+      >
+        <div class="modal__head">
+          <h3 id="modalTitle">Producto</h3>
+          <button class="icon-btn" id="closeModalBtn" aria-label="Cerrar">
+            ✕
+          </button>
+        </div>
+
+        <div class="modal__body">
+          <div class="modal__img">
+            <img id="modalImg" src="" alt="" />
+          </div>
+
+          <p class="muted" id="modalDesc" style="margin: 12px 0 0"></p>
+
+          <div class="row between" style="margin-top: 12px">
+            <div class="rating" id="modalRating">★ 0.0</div>
+            <div class="price" id="modalPrice">$0.00</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <h4 style="margin: 0 0 10px">Extras</h4>
+          <div class="row" id="modalExtras"></div>
+
+          <div class="divider"></div>
+
+          <div class="row between">
+            <div class="qty" aria-label="Cantidad">
+              <button id="modalDec" aria-label="Restar">−</button>
+              <span id="modalQty">1</span>
+              <button id="modalInc" aria-label="Sumar">+</button>
+            </div>
+
+            <button class="btn primary" id="modalAddBtn" type="button">
+              Agregar al carrito
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
