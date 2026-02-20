@@ -172,7 +172,7 @@ export default function App() {
     (storeId) => {
       setSelectedStoreId(storeId);
       localStorage.setItem(STORE_KEY, storeId);
-      showToast("Sucursal seleccionada ✅");
+      showToast("Sucursal seleccionada");
     },
     [showToast]
   );
@@ -332,7 +332,7 @@ export default function App() {
       })
       .join("\n");
 
-    const summary = `✅ Pedido demo creado\n\nSucursal: ${
+    const summary = `Pedido demo creado\n\nSucursal: ${
       selectedStore ? selectedStore.name : "No seleccionada"
     }\nMétodo: ${methodLabel}\nCupón: ${coupon || "—"}\nPropina: ${tipPct}%\n\nItems:\n${lines}\n\nSubtotal: ${money(
       subtotal

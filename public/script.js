@@ -858,7 +858,7 @@ function renderStoreList() {
         <button class="btn ${isSelected ? "primary" : ""}" data-pick="${
       s.id
     }" type="button">
-          ${isSelected ? "Seleccionada ✅" : "Seleccionar"}
+          ${isSelected ? "Seleccionada" : "Seleccionar"}
         </button>
       </div>
     `;
@@ -974,7 +974,7 @@ function selectStore(storeId) {
   renderStoreBar();
   renderStoreList();
   renderCart(); // shipping puede cambiar
-  toast("Sucursal seleccionada ✅");
+  toast("Sucursal seleccionada");
 }
 
 // ---------- Events ----------
@@ -1180,7 +1180,7 @@ function checkoutDemo() {
     })
     .join("\n");
 
-  const summary = `✅ Pedido demo creado
+  const summary = `Pedido demo creado
 
 Sucursal: ${store ? store.name : "No seleccionada"}
 Método: ${method}
