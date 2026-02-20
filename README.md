@@ -2,6 +2,12 @@
 
 Landing + menu interactivo para una hamburgueseria. Incluye carrito, favoritos, cupones, delivery/pickup y mapa de sucursales.
 
+## Demo
+Sitio en vivo: https://gourmand-burgers.web.app
+
+## Preview
+![Preview del sitio](public/preview.png)
+
 ## Funcionalidades
 - Menu con busqueda, filtros por categoria y ordenamientos.
 - Favoritos persistentes en localStorage.
